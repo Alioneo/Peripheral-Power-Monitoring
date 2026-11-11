@@ -2,10 +2,6 @@
 
 **外设电量监测 / 键鼠电量监测** —— Windows 任务栏上的无线外设电量监视器。
 
-![大卡片](docs/images/card.png)
-
-![任务栏入口](docs/images/entry.png)
-
 ## ⚠️ 设备支持声明
 
 **本项目仅适配以下两款设备，其他设备没有适配、不会显示任何数据：**
@@ -27,7 +23,7 @@
 
 ## 安装与卸载
 
-到 [Releases](../../releases) 下载安装包：
+到 [发行版](../../releases) 下载安装包：
 
 - 可自定义安装目录（默认 `Program Files\RapooBattery`）
 - 在 Windows 设置 → 应用 中可正常卸载
