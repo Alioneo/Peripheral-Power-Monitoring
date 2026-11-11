@@ -1,0 +1,16 @@
+[package]
+name = "rapoo-battery"
+version = "1.0.1"
+edition = "2021"
+description = "外设电量监测：雷柏 V700 DIY-98 LRV / VT7 PRO V2 的任务栏电量与充电记录小组件"
+license = "MIT"
+
+[dependencies]
+wry = "0.57.2"
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+panic = "abort"
+strip = true

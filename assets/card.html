@@ -1,0 +1,1080 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>card</title>
+<style>
+
+/* ============================================================
+   DESIGN TOKENS
+   全部色彩收敛为变量：body / .theme-light 两套，图表由 JS 读取同一份
+   ============================================================ */
+:root{
+  --f-disp:"Bahnschrift SemiCondensed","DIN Alternate","Arial Narrow","Helvetica Neue",sans-serif;
+  --f-mono:ui-monospace,"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+  --ease:cubic-bezier(.16,1,.3,1);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+
+/* ---------- 深色主题（默认） ---------- */
+body{
+  --k:#02ACF4; --m:#E7B25A; --k-hi:#8FDEFF; --m-hi:#F8DCA2;
+  --red:#FF6A52; --red-lo:#FF8A72; --red-glow:rgba(255,106,82,.50); --red-glow-h:rgba(255,106,82,.90);
+  --chg:#5BE49B; --chg-glow:rgba(91,228,155,.80);
+  --dev-ico:#E6EFF5;
+  --card-1:#122430; --card-2:#0C1A24; --card-3:#09151E;
+  --bd:#2C4A5C; --line:#213B4C; --line2:#1E3A4A;
+  --ink:#DCEBF2; --hi:#EAF4F9; --ink2:#A9CADA; --ink3:#6E93A7; --ink4:#527A8E;
+  --fr-1:#172E3C; --fr-2:#0D1D29; --fr-3:#08131C; --fr-bd:#2A4759;
+  --grid-c:rgba(143,182,200,.30); --fr-scan:rgba(160,210,230,.022); --vignette:rgba(3,9,14,.55);
+  --scan:rgba(2,172,244,.30); --scan-m:rgba(231,178,90,.32);
+  --af-bd:rgba(160,205,225,.15); --af-tick:rgba(160,205,225,.22);
+  --k-glow:rgba(2,172,244,.22); --m-glow:rgba(231,178,90,.18);
+  --k-glow-s:rgba(2,172,244,.55); --k-glow-h:rgba(2,172,244,.90);
+  --m-glow-s:rgba(231,178,90,.50); --m-glow-h:rgba(231,178,90,.85);
+  --k-ring:rgba(2,172,244,.45);
+  --gh:#1B3646; --gv:#152C3A; --gaxis:#3A5E70; --gmid:#4A6C7E; --seg-off:#274353;
+  --chip-bg:rgba(12,28,39,.72); --chip-bd:#34576A;
+  --top-bg:rgba(7,17,25,.46); --sys-bg:rgba(5,12,18,.45); --btn-bg:rgba(16,38,51,.85);
+  --sweep:rgba(2,172,244,.13); --flash:rgba(150,215,250,.075); --shutter:#EAF8FF;
+  --nolink-bg:rgba(6,14,20,.55); --nolink-ink:#9FB3BC; --off-ink:#5C7681;
+  --tray-1:#10212D; --tray-2:#0A1620; --tray-bd:#2C4A5C; --tray-bd-hover:#4A8299;
+  --tray-hi:rgba(160,205,225,.07); --tray-sh:rgba(0,0,0,.32);
+  --tb-bg:rgba(19,25,31,.94); --tb-bd:rgba(255,255,255,.06);
+  --win:#9FB6C6; --clock:#C6D6E1; --clock-sm:#71899B;
+  --wall:radial-gradient(ellipse 620px 400px at 22% 18%,rgba(38,86,112,.34),transparent 70%),
+         radial-gradient(ellipse 520px 420px at 82% 8%,rgba(24,60,84,.30),transparent 72%),
+         linear-gradient(160deg,#101C26 0%,#0C1620 48%,#0A1219 100%);
+  --wall-grid:rgba(255,255,255,.012);
+  --rec-off:#5D7B8B; --rec-off-dot:#3D5663;
+  --card-shadow:0 30px 70px rgba(0,0,0,.68),0 3px 10px rgba(0,0,0,.45);
+  --card-inset:inset 0 1px 0 rgba(190,220,235,.10),inset 0 0 0 1px rgba(140,180,205,.05);
+  --hi-line:linear-gradient(90deg,transparent,rgba(190,225,240,.30),transparent);
+  --amb-1:rgba(2,172,244,.10); --amb-2:rgba(231,178,90,.075);
+  --barsweep:linear-gradient(90deg,transparent 20%,rgba(255,130,95,.10) 48%,rgba(255,175,130,.18) 52%,transparent 78%);
+  --bolt-glow:rgba(255,90,70,.60);
+  --shell-bg:#0B0F13; --shell-txt:#E6EFF5; --shell-line:#23313D;
+}
+body{background:var(--shell-bg);color:var(--shell-txt);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif;
+  -webkit-font-smoothing:antialiased;padding:30px 26px 70px}
+/* ---------- 浅色主题 ---------- */
+.theme-light{
+  --k:#0074B8; --m:#A2680C; --k-hi:#0093DA; --m-hi:#C98A1C;
+  --red:#D6412A; --red-lo:#C63A24; --red-glow:rgba(214,65,42,.28); --red-glow-h:rgba(214,65,42,.55);
+  --chg:#0E8A55; --chg-glow:rgba(14,138,85,.35);
+  --dev-ico:#3B5D6D;
+  --card-1:#FFFFFF; --card-2:#F6FAFC; --card-3:#EDF4F8;
+  --bd:#BBCFD9; --line:#D8E5EB; --line2:#DCE8EE;
+  --ink:#1B3442; --hi:#0D2431; --ink2:#386174; --ink3:#668798; --ink4:#8AA2AE;
+  --fr-1:#FFFFFF; --fr-2:#F1F8FB; --fr-3:#E4EFF4; --fr-bd:#BDD1DC;
+  --grid-c:rgba(35,95,120,.30); --fr-scan:rgba(30,90,115,.028); --vignette:rgba(105,145,170,.14);
+  --scan:rgba(2,150,215,.22); --scan-m:rgba(160,105,10,.20);
+  --af-bd:rgba(40,100,125,.22); --af-tick:rgba(40,100,125,.32);
+  --k-glow:rgba(2,172,244,.20); --m-glow:rgba(162,104,12,.16);
+  --k-glow-s:rgba(2,172,244,.30); --k-glow-h:rgba(2,172,244,.55);
+  --m-glow-s:rgba(162,104,12,.25); --m-glow-h:rgba(162,104,12,.48);
+  --k-ring:rgba(2,172,244,.34);
+  --gh:#DEEAF0; --gv:#E9F1F5; --gaxis:#B7CBD6; --gmid:#96B2C0; --seg-off:#DBE7ED;
+  --chip-bg:rgba(255,255,255,.80); --chip-bd:#B9CDD9;
+  --top-bg:rgba(255,255,255,.62); --sys-bg:rgba(233,241,246,.72); --btn-bg:rgba(255,255,255,.82);
+  --sweep:rgba(2,150,215,.10); --flash:rgba(2,130,200,.055); --shutter:#FFFFFF;
+  --nolink-bg:rgba(244,249,251,.68); --nolink-ink:#5A7686; --off-ink:#7C969F;
+  --tray-1:#FFFFFF; --tray-2:#EDF4F7; --tray-bd:#B9CDD8; --tray-bd-hover:#7FAEC1;
+  --tray-hi:rgba(255,255,255,.9); --tray-sh:rgba(30,70,90,.12);
+  --tb-bg:rgba(243,246,249,.94); --tb-bd:rgba(255,255,255,.80);
+  --win:#6E8492; --clock:#3C4C58; --clock-sm:#7B8C98;
+  --wall:radial-gradient(ellipse 620px 400px at 22% 18%,rgba(150,200,220,.30),transparent 70%),
+         radial-gradient(ellipse 520px 420px at 82% 8%,rgba(180,210,225,.28),transparent 72%),
+         linear-gradient(160deg,#F1F6F9 0%,#E7EFF4 48%,#DCE7EE 100%);
+  --wall-grid:rgba(20,60,80,.035);
+  --rec-off:#8AA2AE; --rec-off-dot:#AFC3CD;
+  --card-shadow:0 26px 60px rgba(30,70,95,.18),0 3px 10px rgba(30,70,95,.10);
+  --card-inset:inset 0 1px 0 rgba(255,255,255,.9),inset 0 0 0 1px rgba(20,70,95,.04);
+  --hi-line:linear-gradient(90deg,transparent,rgba(40,110,140,.20),transparent);
+  --amb-1:rgba(2,150,215,.075); --amb-2:rgba(162,104,12,.055);
+  --barsweep:linear-gradient(90deg,transparent 20%,rgba(14,138,85,.05) 48%,rgba(14,138,85,.12) 52%,transparent 78%);
+  --bolt-glow:rgba(14,138,85,.45);
+}
+body.theme-light{--shell-bg:#EEF3F6;--shell-txt:#18303D;--shell-line:#D6E2E9}
+:focus-visible{outline:2px solid var(--k);outline-offset:2px}
+.glyph{fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;display:block}
+
+/* ---------- page shell ---------- */
+
+/* ---------- desktop stage ---------- */
+.card{position:absolute;left:30px;bottom:66px;z-index:4;transform-origin:left bottom;transition:transform .44s var(--ease),opacity .3s ease}
+.anchor{position:absolute;left:22px;bottom:-8px;width:13px;height:13px;transform:rotate(45deg);z-index:-1}
+.tray{height:35px;display:flex;align-items:center;cursor:pointer;position:relative;flex:none;transition:transform .28s var(--ease),box-shadow .28s ease,border-color .28s ease}
+.tray:hover{transform:translateY(-1px)}
+.tray::before{content:"";position:absolute;left:0;right:0;bottom:-7px;height:7px}
+
+/* ============================================================
+   Ⅸ — VIEWFINDER / DUAL OPTICS
+   ============================================================ */
+.card.vf{
+  width:588px;background:linear-gradient(180deg,var(--card-1) 0%,var(--card-2) 42%,var(--card-3) 100%);
+  border:1px solid var(--bd);border-radius:5.7px;color:var(--ink);font-family:var(--f-mono);
+  /* 圆角由窗口级 DWM 裁剪（物理 8px、抗锯齿）决定；CSS 半径取 8/SCALE≈5.7 与 clip 对齐，
+     避免 1px 描边在拐角处被裁断。Win10 回退路径的区域裁剪半径同为 8px。 */
+  box-shadow:var(--card-inset),var(--card-shadow);overflow:hidden;
+}
+.card.vf .anchor{background:var(--card-3);border-right:1px solid var(--bd);border-bottom:1px solid var(--bd)}
+.vf-top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:11px 16px 10px;border-bottom:1px solid var(--line);background:var(--top-bg)}
+.vf-brand{display:flex;align-items:baseline;gap:11px;min-width:0}
+.vf-brand b{font-family:var(--f-disp);font-size:15px;letter-spacing:3.2px;font-weight:600;color:var(--hi);white-space:nowrap}
+.vf-brand span{font-size:9px;letter-spacing:1.5px;color:var(--ink3);white-space:nowrap}
+/* 充电绿雷电（呼吸） / 12 BINS 范围切换按钮 */
+.vf-chgbolt{display:none;position:absolute;left:calc(50% + 34px);top:calc(45% - 19px);width:30px;height:38px;z-index:4;
+  color:var(--chg);fill:currentColor;stroke:none;filter:drop-shadow(0 0 9px var(--chg-glow));
+  animation:chgBreath 1.9s ease-in-out infinite}
+body.chg-kb #vfK .vf-chgbolt,body.chg-ms #vfM .vf-chgbolt{display:block}
+@keyframes chgBreath{0%,100%{opacity:.42;transform:scale(.9)}50%{opacity:1;transform:scale(1.1)}}
+.vf-state.only-charge{display:none;color:var(--chg)}
+body.chg-kb #vfK .vf-state.only-charge,body.chg-ms #vfM .vf-state.only-charge{display:flex}
+.bins-btn{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--f-mono);font-size:9px;letter-spacing:1.1px;
+  color:var(--ink2);background:var(--btn-bg);border:1px solid var(--chip-bd);border-radius:5px;padding:4px 8px;transition:border-color .22s,background .22s,color .22s,transform .12s}
+.bins-btn:hover{border-color:var(--k);color:var(--hi);background:var(--chip-bg)}
+.bins-btn:active{transform:translateY(1px)}
+.bins-btn.on{border-color:var(--k);color:var(--hi)}
+.bins-btn .bt-sep{width:1px;height:10px;background:var(--chip-bd)}
+.vf-right{display:flex;align-items:center;gap:10px;font-size:9px;letter-spacing:1.2px;white-space:nowrap}
+.rec{display:flex;align-items:center;gap:6px;color:var(--red-lo);transition:color .35s var(--ease)}
+.rec b{width:6px;height:6px;border-radius:50%;background:var(--red);display:block;animation:rec 1.9s ease-in-out infinite;box-shadow:0 0 7px var(--red-glow);
+  transition:background .35s var(--ease),box-shadow .35s var(--ease)}
+@keyframes rec{0%,100%{opacity:1}50%{opacity:.2}}
+/* 顶栏 REC：默认常驻红色呼吸；仅当任一设备充电时，点／文字整体转绿，呼吸不中断 */
+body.chg-any .rec{color:var(--chg)}
+body.chg-any .rec b{background:var(--chg);box-shadow:0 0 8px var(--chg-glow)}
+
+.vf-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:14px 16px 4px}
+.vf-frame{position:relative;height:186px;border:1px solid var(--fr-bd);overflow:hidden;
+  background:radial-gradient(ellipse at 50% 42%,var(--fr-1) 0%,var(--fr-2) 60%,var(--fr-3) 100%)}
+#vfK{--ac:var(--k)}#vfM{--ac:var(--m)}
+body.lowbat .vf-frame{--ac:var(--red)!important}
+body.nolink #vfM,body.nolk #vfK{--ac:var(--off-ink)!important}
+.vf-frame:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0 3px,var(--fr-scan) 3px 4px),
+             radial-gradient(ellipse at 50% 45%,transparent 44%,var(--vignette) 100%)}
+.vf-rule{position:absolute;inset:0;pointer-events:none}
+.vf-rule path{stroke:var(--grid-c);stroke-width:.6;stroke-dasharray:2 6;opacity:.42}
+.vf-cn{position:absolute;width:19px;height:19px;border:0 solid var(--ac);opacity:.95;transition:transform .5s var(--ease)}
+.vf-cn.tl{top:8px;left:8px;border-top-width:2px;border-left-width:2px}
+.vf-cn.tr{top:8px;right:8px;border-top-width:2px;border-right-width:2px}
+.vf-cn.bl{bottom:8px;left:8px;border-bottom-width:2px;border-left-width:2px}
+.vf-cn.br{bottom:8px;right:8px;border-bottom-width:2px;border-right-width:2px}
+.vf-cn:after{content:"";position:absolute;background:var(--ac);opacity:.7;box-shadow:0 0 5px var(--ac)}
+.vf-cn.tl:after{left:-1px;top:5px;width:5px;height:1px}.vf-cn.tr:after{right:-1px;top:5px;width:5px;height:1px}
+.vf-cn.bl:after{left:-1px;bottom:5px;width:5px;height:1px}.vf-cn.br:after{right:-1px;bottom:5px;width:5px;height:1px}
+.vf-frame.focusing .vf-cn{animation:focusIn .52s var(--ease)}
+@keyframes focusIn{from{transform:scale(1.45);opacity:.35}to{transform:scale(1);opacity:.95}}
+.vf-af{position:absolute;left:50%;top:45%;width:88px;height:88px;transform:translate(-50%,-50%);border:1px solid var(--af-bd)}
+.vf-af:before,.vf-af:after{content:"";position:absolute;background:var(--af-tick)}
+.vf-af:before{left:50%;top:-6px;width:1px;height:6px}.vf-af:after{left:50%;bottom:-6px;width:1px;height:6px}
+.vf-ic{position:absolute;left:50%;top:45%;width:62px;height:62px;transform:translate(-50%,-50%);color:var(--ac);opacity:.94;stroke-width:1.35;filter:drop-shadow(0 0 11px var(--k-glow))}
+#vfM .vf-ic{filter:drop-shadow(0 0 11px var(--m-glow))}
+body.nolink #vfM .vf-ic,body.nolk #vfK .vf-ic{opacity:.28;filter:none}
+.vf-tag{position:absolute;left:32px;top:9px;display:flex;align-items:center;gap:7px;font-size:9px;letter-spacing:1.2px;color:var(--ink2);z-index:2}
+.chip{display:inline-flex;align-items:center;gap:4px;cursor:default;border:1px solid var(--chip-bd);background:var(--chip-bg);color:var(--ink2);padding:2px 5px;letter-spacing:.8px}
+.chip svg{width:10px;height:10px}
+.vf-state{position:absolute;right:32px;top:9px;display:flex;align-items:center;gap:5px;font-size:8.5px;letter-spacing:1.2px;color:var(--ac);z-index:2}
+.vf-state svg{width:9px;height:12px}
+.vf-num{position:absolute;right:14px;bottom:29px;font-family:var(--f-disp);font-size:47px;font-weight:600;line-height:.86;letter-spacing:-1.6px;color:var(--hi);z-index:2;font-variant-numeric:tabular-nums}
+.vf-num small{font-family:var(--f-mono);font-size:13px;font-weight:400;color:var(--ac);margin-left:3px;letter-spacing:0}
+.vf-sub{position:absolute;left:14px;bottom:31px;font-size:8.5px;letter-spacing:1.1px;color:var(--ink3);line-height:1.65;z-index:2}
+.vf-sub b{display:block;font-family:var(--f-disp);font-size:12px;letter-spacing:.8px;color:var(--ink2);font-weight:500;margin-top:2px}
+.vf-seg{position:absolute;left:30px;right:30px;bottom:13px;z-index:3}
+.vf-seg svg{width:100%;height:9px;display:block}
+.vf-nolink{position:absolute;inset:0;display:none;align-items:center;justify-content:center;font-family:var(--f-disp);font-size:15px;letter-spacing:3px;color:var(--nolink-ink);background:var(--nolink-bg);z-index:3}
+body.nolink #vfM .vf-nolink,body.nolk #vfK .vf-nolink{display:flex}
+
+.vf-exp-sec{padding:8px 16px 0;position:relative}
+.vf-sec-hd{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:9px;letter-spacing:1.4px;color:var(--ink3);margin-bottom:5px}
+.vf-sec-hd b{font-family:var(--f-disp);font-size:11px;letter-spacing:2px;color:var(--ink2);font-weight:600}
+#hist{width:100%;height:104px;display:block}
+.vf-axis{display:flex;justify-content:space-between;font-size:8.5px;color:var(--ink4);letter-spacing:.6px;margin-top:1px}
+.vf-meter{margin:11px 16px 0;padding:7px 0 4px;border-top:1px solid var(--line2);border-bottom:1px solid var(--line2);position:relative;height:48px}
+#evScale{width:100%;height:34px;display:block;position:absolute;left:0;top:6px}
+.vf-cur{position:absolute;top:3px;height:38px;width:2px;background:var(--k);box-shadow:0 0 9px var(--k-glow-s);transition:left .62s var(--ease);z-index:2}
+.vf-cur.m{background:var(--m);box-shadow:0 0 9px var(--m-glow-s)}
+.vf-cur:before{content:"";position:absolute;left:-4px;top:-1px;width:10px;height:10px;background:inherit;transform:rotate(45deg);border-radius:1px;animation:curPulse 3.4s ease-in-out infinite}
+@keyframes curPulse{0%,100%{transform:rotate(45deg) scale(.84)}50%{transform:rotate(45deg) scale(1.18)}}
+/* 游标字母标签 K/M 已移除 */
+body.lowbat .vf-cur{background:var(--red);box-shadow:0 0 9px var(--red-glow)}
+.vf-ft{display:grid;grid-template-columns:118px 1.06fr 1.06fr .96fr 1fr;padding:12px 16px 10px}
+.vf-ft>div{padding:0 6px;border-right:1px solid var(--line2);min-width:0}
+.vf-ft>div:nth-child(5n){border-right:0;padding-right:0}
+.vf-ft .h{font-size:8.5px;letter-spacing:1.1px;color:var(--ink3);white-space:nowrap;padding-bottom:8px}
+.vf-ft .c{padding-top:8px;padding-bottom:8px;border-top:1px solid var(--line2);font-family:var(--f-disp);font-size:13.5px;letter-spacing:.4px;color:var(--ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+.vf-ft .c.dim{color:var(--ink3)}
+.vf-ft .dev{display:flex;align-items:center;gap:7px;font-family:var(--f-mono);font-size:10px;letter-spacing:.6px;color:var(--ink2)}
+.vf-ft .dev svg{width:14px;height:14px;color:var(--k);flex:none}
+.vf-ft .dev.m svg{color:var(--m)}
+body.nolk .vf-ft .kbrow,body.nolink .vf-ft .msrow{opacity:.42}
+.vf-sys{display:flex;justify-content:space-between;gap:10px;padding:8px 16px 10px;border-top:1px solid var(--line);font-size:8.5px;letter-spacing:1.05px;color:var(--ink4);background:var(--sys-bg)}
+.vf-sys b{color:var(--ink2);font-weight:400}
+
+/* ---------- Ⅸ tray：固定宽度槽位，充电雷电「替换」而非「追加」链路图标 ---------- */
+.tray.vf{background:linear-gradient(180deg,var(--tray-1),var(--tray-2));border:1px solid var(--tray-bd);border-radius:10px;
+  padding:0 7px;gap:3px;font-family:var(--f-mono);
+  box-shadow:inset 0 1px 0 var(--tray-hi),0 2px 8px var(--tray-sh)}
+.tray.vf:hover{border-color:var(--tray-bd-hover)}
+.tray.vf .dev,.tray.vf .dev.m{width:15px;height:15px;color:var(--dev-ico);flex:none}
+.tray.vf .n{font-family:var(--f-disp);font-size:18px;font-weight:600;color:var(--k);letter-spacing:-.3px;font-variant-numeric:tabular-nums;line-height:1;width:24px;flex:none;text-align:center;white-space:nowrap}
+.tray.vf .n.m{color:var(--m)}
+body.chg-kb .tray.vf .slot[data-slot="kb"] .lnk,
+body.chg-kb .tray.vf .slot[data-slot="kb"] .bolt,
+body.lowbat .tray.vf .n,body.lowbat .tray.vf .n.m{color:var(--red-lo)}
+/* 断连/无读数：游标不隐藏，停在刻度中间并转灰（不呼吸） */
+.vf-cur.idle{background:var(--ink4);box-shadow:none;animation:none}
+.vf-cur.idle:before{animation:none;background:var(--ink4)}
+.vf-cur.idle:after{display:none}
+body.lowbat .vf-cur.idle{background:var(--ink4);box-shadow:none}
+body.nolink .tray.vf .dev.m,body.nolink .tray.vf .n.m,body.nolk .tray.vf .dev:not(.m),body.nolk .tray.vf .n:not(.m){opacity:.4}
+
+/* ============================================================
+   1:1 SIZE BASELINE / NOTES / TABLE
+   ============================================================ */
+
+/* ============================================================
+   MOTION SYSTEM — 环境 / 状态 / 数据 / 微交互
+   ============================================================ */
+.card.vf>*:not(.anchor):not(.vf-settings){animation:rise .58s var(--ease) both}
+.card.vf>*:nth-child(2){animation-delay:.04s}.card.vf>*:nth-child(3){animation-delay:.10s}
+.card.vf>*:nth-child(4){animation-delay:.16s}.card.vf>*:nth-child(5){animation-delay:.22s}
+.card.vf>*:nth-child(6){animation-delay:.28s}.card.vf>*:nth-child(7){animation-delay:.34s}
+@keyframes rise{from{transform:translateY(13px)}to{transform:none}}
+
+/* L1 环境 */
+.vf-frame .scanline{position:absolute;left:0;right:0;top:0;height:1px;pointer-events:none;z-index:1;
+  background:linear-gradient(90deg,transparent,var(--scan),transparent);animation:scanY 7.5s linear infinite}
+.vf-frame.m .scanline{background:linear-gradient(90deg,transparent,var(--scan-m),transparent);animation-delay:-3.7s}
+@keyframes scanY{0%{transform:translateY(-3px);opacity:0}12%{opacity:.75}88%{opacity:.75}100%{transform:translateY(186px);opacity:0}}
+.vf-cur{--g1:var(--k-glow-s);--g2:var(--k-glow-h);animation:curGlow 3.4s ease-in-out infinite}
+.vf-cur.m{--g1:var(--m-glow-s);--g2:var(--m-glow-h)}
+body.lowbat .vf-cur{--g1:var(--red-glow);--g2:var(--red-glow-h)}
+@keyframes curGlow{0%,100%{box-shadow:0 0 12px var(--g1);opacity:.78}50%{box-shadow:0 0 26px var(--g2);opacity:1}}
+
+/* L1b 常驻环境动效 —— 长周期 / 低幅度 / 错相位，不与功能性扫描线抢戏 */
+/* 桌面双色光斑已移除 */
+
+/* 反向次级扫描：8s 周期更慢，压暗一档 */
+.scanline.b{animation:scanY2 10s linear infinite;opacity:1;box-shadow:0 0 6px var(--scan)}
+.vf-frame.m .scanline.b{animation-delay:-5s;box-shadow:0 0 6px var(--scan-m)}
+@keyframes scanY2{0%{transform:translateY(186px);opacity:0}10%{opacity:.6}90%{opacity:.6}100%{transform:translateY(-3px);opacity:0}}
+
+/* 四角抓取线：每次呼吸向外"抓"一下 */
+.vf-cn:after{animation:cornerTick 5.2s ease-in-out infinite;transform-origin:left center}
+.vf-cn.tr:after,.vf-cn.br:after{transform-origin:right center}
+.vf-cn.tr:after{animation-delay:-1.3s}
+.vf-cn.bl:after{animation-delay:-2.6s}
+.vf-cn.br:after{animation-delay:-3.9s}
+@keyframes cornerTick{0%,100%{transform:scaleX(1);opacity:.55}50%{transform:scaleX(2.4);opacity:1}}
+
+/* 对焦框：缓慢亮度呼吸，像在持续寻找焦点 */
+.vf-af{animation:afBreath 6.4s ease-in-out infinite}
+.vf-frame.m .vf-af{animation-delay:-3.2s}
+@keyframes afBreath{0%,100%{opacity:.5;box-shadow:0 0 0 0 transparent;border-color:var(--af-bd)}50%{opacity:1;box-shadow:0 0 16px -5px var(--ac);border-color:var(--ac)}}
+
+/* 设备剪影光晕：极慢明暗，断连时停用 */
+.vf-ic{--ic-g:var(--k-glow);--ic-gh:var(--k-glow-h);animation:icGlow 7.6s ease-in-out infinite}
+#vfM .vf-ic{--ic-g:var(--m-glow);--ic-gh:var(--m-glow-h)}
+.vf-frame.m .vf-ic{animation-delay:-3.8s}
+@keyframes icGlow{0%,100%{filter:drop-shadow(0 0 12px var(--ic-g))}50%{filter:drop-shadow(0 0 26px var(--ic-gh))}}
+body.nolink #vfM .vf-ic,body.nolk #vfK .vf-ic{animation:none}
+
+/* 电量刻条：电流波纹——一道亮脉冲沿已点亮区段从左(低电)流向右(高电)，像电流在导线里跑 */
+.vf-seg .sg{animation:segRipple 2.6s linear infinite}
+@keyframes segRipple{0%{fill-opacity:.84}7%{fill-opacity:.98}24%{fill-opacity:.84}100%{fill-opacity:.84}}
+
+/* 品牌字：保持静态字色，不再做扫光 */
+
+/* 系统行终端光标：不规则闪烁，只在收尾处点一下科技感 */
+.sys-cur{display:inline-block;width:3px;height:11px;margin-left:5px;vertical-align:-1px;background:var(--k);box-shadow:0 0 5px var(--k);
+  animation:sysCur 2.8s steps(1,end) infinite}
+@keyframes sysCur{0%,35%{opacity:1}36%,52%{opacity:0}53%,71%{opacity:1}72%,82%{opacity:.22}83%,100%{opacity:1}}
+
+/* 任务栏单元：极淡的待机呼吸光，不影响 141×35 尺寸 */
+.tray.vf:after{content:"";position:absolute;inset:0;border-radius:9px;pointer-events:none;
+  animation:trayIdle 6.2s ease-in-out infinite}
+@keyframes trayIdle{0%,100%{box-shadow:0 0 0 0 transparent}50%{box-shadow:0 0 16px -3px var(--k-glow)}}
+
+/* 卡片外发光：8.6s 一次极淡的蓝色外围呼吸，让卡片像悬浮在桌面上 */
+.card.vf{animation:cardAmb 8.6s ease-in-out infinite}
+@keyframes cardAmb{
+  0%,100%{box-shadow:var(--card-inset),var(--card-shadow),0 0 0 0 rgba(2,172,244,0)}
+  50%{box-shadow:var(--card-inset),var(--card-shadow),0 0 46px -2px var(--k-glow)}}
+
+/* 时钟冒号：每秒一次明暗跳变，模拟真实走时 */
+/* 时钟冒号呼吸已移除（冒号常亮显示） */
+
+/* 直方图柱：电流波纹——逐柱错相位流动的亮带，像电能脉冲在频谱里穿行 */
+#hist .hb{animation:histRipple 2.2s linear infinite}
+@keyframes histRipple{0%{fill-opacity:.74}9%{fill-opacity:.96}28%{fill-opacity:.74}100%{fill-opacity:.74}}
+
+/* 总开关：AMBIENT 关 / 系统减少动态效果 */
+body.ambient-off .scanline.b,
+body.ambient-off .vf-cn:after,
+body.ambient-off .vf-af,
+body.ambient-off .vf-ic,
+body.ambient-off .vf-seg .sg,
+body.ambient-off .sys-cur,
+body.ambient-off .tray.vf:after,
+body.ambient-off .card.vf,
+body.ambient-off #hist .hb{animation:none!important}
+body.ambient-off .scanline.b{opacity:0}
+
+
+/* L2 状态 */
+.vf-frame.focusing:before{content:"";position:absolute;inset:0;background:var(--shutter);opacity:0;pointer-events:none;z-index:5;animation:shutter .36s ease-out}
+@keyframes shutter{from{opacity:.15}to{opacity:0}}
+.vf-frame.focusing .vf-af{animation:afPulse .52s var(--ease)}
+@keyframes afPulse{from{transform:translate(-50%,-50%) scale(1.2);border-color:var(--k)}to{transform:translate(-50%,-50%) scale(1);border-color:var(--af-bd)}}
+  background:linear-gradient(105deg,transparent 30%,var(--flash) 50%,transparent 70%);
+  animation:cardSweep .62s var(--ease)}
+@keyframes cardSweep{0%{opacity:0}38%{opacity:1}100%{opacity:0}}
+
+/* L3 数据：重扫只跑一次，结束停在右侧且 opacity:0，杜绝回弹到左端 */
+  background:linear-gradient(90deg,transparent,var(--sweep),transparent);
+  animation:histSweep .64s var(--ease) both}
+@keyframes histSweep{0%{transform:translateX(-64px);opacity:0}12%{opacity:1}80%{opacity:1}100%{transform:translateX(556px);opacity:0}}
+[data-num]{display:inline-block}
+.bump{animation:numBump .44s var(--ease)}
+@keyframes numBump{from{transform:translateY(-10px);opacity:.25}to{transform:none;opacity:1}}
+.pulse{animation:chipPulse .52s var(--ease)}
+@keyframes chipPulse{0%{box-shadow:0 0 0 0 var(--k-ring)}100%{box-shadow:0 0 0 9px rgba(0,0,0,0)}}
+@keyframes icoSwap{0%{transform:scale(.5) rotate(-14deg);opacity:.2}55%{transform:scale(1.16) rotate(3deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+
+/* 充电与微交互 */
+/* .vf-seg 保持 absolute，20 段刻条固定在取景框底部 */
+body.chg-kb #vfK .vf-seg:after,body.chg-ms #vfM .vf-seg:after{content:"";position:absolute;inset:0;pointer-events:none;
+  background:var(--barsweep);animation:barsweep 2.8s ease-in-out infinite}
+@keyframes barsweep{0%,100%{transform:translateX(-55%)}50%{transform:translateX(55%)}}
+body.chg-kb #vfK .vf-state svg,body.chg-ms #vfM .vf-state svg{animation:boltPulse 1.9s ease-in-out infinite}
+@keyframes boltPulse{0%,100%{opacity:1;filter:drop-shadow(0 0 4px var(--bolt-glow))}50%{opacity:.5;filter:none}}
+
+/* ===== 动效增强（每块独立，可单条删除）===== */
+/* 1) 数字滚动到位后的一次冷光闪 */
+[data-num].cnt{animation:numFlash .6s var(--ease)}
+@keyframes numFlash{0%{text-shadow:0 0 0 transparent}30%{text-shadow:0 0 16px var(--k-glow-h)}100%{text-shadow:0 0 0 transparent}}
+/* 2) 低电量：只让偏低的那一路数字与取景框红色呼吸 */
+body.lowk #vfK .vf-num,body.lowm #vfM .vf-num{animation:lowPulse 1.6s ease-in-out infinite}
+@keyframes lowPulse{0%,100%{opacity:.88;filter:none}50%{opacity:1;filter:drop-shadow(0 0 12px var(--red-glow))}}
+body.lowk #vfK,body.lowm #vfM{animation:lowRing 1.6s ease-in-out infinite}
+@keyframes lowRing{0%,100%{box-shadow:inset 0 0 0 1px transparent}50%{box-shadow:inset 0 0 26px -10px var(--red-glow-h)}}
+/* 3) 新整点数据注入：柱子从底部生长（几何动画由 WAAPI 触发） */
+#hist .hb{transform-box:fill-box;transform-origin:bottom}
+
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+body.focus{padding:0}
+
+/* ============================================================
+   SETTINGS / 齿轮入口与卡片内设置页
+   ============================================================ */
+.vf-gear{display:inline-flex;align-items:center;justify-content:center;width:23px;height:23px;flex:none;
+  cursor:pointer;color:var(--ink3);background:var(--btn-bg);border:1px solid var(--chip-bd);border-radius:5px;
+  transition:color .22s,border-color .22s,background .22s,transform .3s var(--ease)}
+.vf-gear:hover{color:var(--k);border-color:var(--k);background:var(--chip-bg)}
+.vf-gear:active{transform:rotate(40deg)}
+.vf-gear svg{width:13px;height:13px}
+body.settings-open .vf-gear{color:var(--k);border-color:var(--k)}
+.theme-light .vf-gear,.theme-light .vf-back,.theme-light .vf-input{background:#FFF}
+
+.vf-settings{--ac:var(--k);position:absolute;inset:0;z-index:12;display:flex;flex-direction:column;
+  color:var(--ink);font-family:var(--f-mono);visibility:hidden;opacity:0;transform:translateX(102%);
+  background:linear-gradient(180deg,var(--card-1) 0%,var(--card-2) 46%,var(--card-3) 100%);
+  transition:transform .46s var(--ease),opacity .32s ease,visibility 0s linear .46s}
+.vf-settings.open{visibility:visible;opacity:1;transform:none;
+  transition:transform .46s var(--ease),opacity .32s ease,visibility 0s}
+.vf-settings:before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(90deg,transparent 0 39px,var(--fr-scan) 39px 40px),
+             repeating-linear-gradient(0deg,transparent 0 39px,var(--fr-scan) 39px 40px)}
+.vf-settings .vf-cn{z-index:1}
+.vf-set-hd{display:flex;align-items:center;gap:12px;padding:11px 26px;border-bottom:1px solid var(--line);
+  background:var(--top-bg);flex:none;position:relative;z-index:1}
+.vf-back{display:inline-flex;align-items:center;gap:6px;cursor:pointer;font-family:var(--f-mono);font-size:9px;
+  letter-spacing:1px;color:var(--ink2);background:var(--btn-bg);border:1px solid var(--chip-bd);border-radius:5px;
+  padding:5px 8px;transition:color .2s,border-color .2s;white-space:nowrap}
+.vf-back:hover{color:var(--hi);border-color:var(--k)}
+.vf-back svg{width:11px;height:11px}
+.vf-set-title{display:flex;align-items:baseline;gap:10px;min-width:0}
+.vf-set-title b{font-family:var(--f-disp);font-size:15px;letter-spacing:3.2px;color:var(--hi);font-weight:600;white-space:nowrap}
+.vf-set-title span{font-size:9px;letter-spacing:1.3px;color:var(--ink3);white-space:nowrap}
+.vf-set-id{margin-left:auto;font-size:8.5px;letter-spacing:1.2px;color:var(--ink4);white-space:nowrap}
+.vf-set-body{flex:1;min-height:0;overflow:auto;padding:2px 18px 12px;position:relative;z-index:1}
+.vf-set-cap{display:flex;align-items:center;gap:8px;font-size:9px;letter-spacing:1.8px;color:var(--ink3);margin:12px 0 3px}
+.vf-set-cap:before{content:"";width:5px;height:5px;background:var(--k);box-shadow:0 0 7px var(--k-glow-s);flex:none}
+.vf-set-cap.m:before{background:var(--m);box-shadow:0 0 7px var(--m-glow-s)}
+.vf-set-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:8px 2px;
+  border-bottom:1px solid var(--line2)}
+.vf-set-label{min-width:0}
+.vf-set-label b{display:block;font-size:12px;font-weight:500;letter-spacing:.7px;color:var(--hi)}
+.vf-set-label span{display:block;font-size:8.5px;letter-spacing:1px;color:var(--ink3);margin-top:4px;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.sw{width:38px;height:20px;border-radius:11px;border:1px solid var(--chip-bd);background:var(--chip-bg);
+  position:relative;cursor:pointer;flex:none;padding:0;transition:background .25s,border-color .25s}
+.sw i{position:absolute;left:2px;top:2px;width:14px;height:14px;border-radius:50%;background:var(--ink3);
+  transition:transform .28s var(--ease),background .25s,box-shadow .25s}
+.sw[aria-checked="true"]{background:var(--k-glow);border-color:var(--k)}
+.sw[aria-checked="true"] i{transform:translateX(18px);background:var(--k);box-shadow:0 0 8px var(--k-glow-h)}
+.sw:hover{border-color:var(--k)}
+.vf-input{width:158px;max-width:52%;font-family:var(--f-mono);font-size:11px;color:var(--hi);
+  background:var(--chip-bg);border:1px solid var(--chip-bd);border-radius:5px;padding:7px 9px;
+  outline:none;transition:border-color .2s,box-shadow .2s;flex:none}
+.vf-input:focus{border-color:var(--k);box-shadow:0 0 0 3px var(--k-glow)}
+.vf-input::placeholder{color:var(--ink4)}
+.vf-set-note{font-size:9px;line-height:1.9;color:var(--ink4);letter-spacing:.3px;margin-top:8px}
+/* 主题两选项：与开关同一套配色，选中项用冰蓝描边（类名避开取景框的 .vf-seg 刻条） */
+.vf-tseg{display:flex;border:1px solid var(--chip-bd);border-radius:6px;overflow:hidden;background:var(--chip-bg);flex:none}
+.vf-tseg button{cursor:pointer;font-size:10px;letter-spacing:1px;color:var(--ink3);background:transparent;
+  border:0;border-right:1px solid var(--chip-bd);padding:6px 13px;transition:color .2s,background .2s}
+.vf-tseg button:last-child{border-right:0}
+.vf-tseg button:hover{color:var(--hi)}
+.vf-tseg button.on{color:var(--hi);background:var(--k-glow);box-shadow:inset 0 0 0 1px var(--k)}
+/* 阈值步进：- 20% + */
+.vf-tstep{display:flex;align-items:center;border:1px solid var(--chip-bd);border-radius:6px;
+  background:var(--chip-bg);overflow:hidden;flex:none}
+.vf-tstep button{cursor:pointer;width:26px;height:26px;border:0;background:transparent;color:var(--ink2);
+  font-family:var(--f-mono);font-size:14px;line-height:1;transition:color .2s,background .2s}
+.vf-tstep button:hover{color:var(--hi);background:var(--btn-bg)}
+.vf-tstep b{min-width:44px;text-align:center;font-family:var(--f-mono);font-size:11px;font-weight:400;color:var(--hi)}
+/* 设置项变多后内容可滚动，滚动条压细，别抢视线 */
+.vf-set-body::-webkit-scrollbar{width:4px}
+.vf-set-body::-webkit-scrollbar-thumb{background:var(--chip-bd);border-radius:2px}
+.vf-set-body::-webkit-scrollbar-track{background:transparent}
+.vf-set-ft{display:flex;justify-content:space-between;gap:10px;padding:8px 26px;border-top:1px solid var(--line);
+  background:var(--sys-bg);font-size:8.5px;letter-spacing:1.05px;color:var(--ink4);flex:none;position:relative;z-index:1}
+.vf-set-ft b{color:var(--ink2);font-weight:400}
+.vf-set-ft [data-set-devices]{display:inline-block;max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:bottom}
+.vf-ft .dev [data-devname]{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.vf-set-reset{position:relative;display:block;margin:12px 0 2px auto;cursor:pointer;font-family:var(--f-mono);font-size:9px;
+  letter-spacing:1px;color:var(--ink3);background:transparent;border:1px solid var(--chip-bd);
+  border-radius:5px;padding:6px 10px;transition:color .2s,border-color .2s}
+.vf-set-reset:hover{color:var(--k);border-color:var(--k)}
+@media(prefers-reduced-motion:reduce){.vf-settings,.vf-settings.open{transition:none}}
+
+/* ---------- 通知区域图标 · Ⅳ 双环闪电 ---------- */
+  background:radial-gradient(circle at 50% 42%,#11212E,#070C11 72%)}
+
+/* ============================================================
+   RUNTIME OVERRIDES 鈥?only the shell needed to host the card standalone.
+   No visual number from the design source is changed here:
+   width 588 / R16 / gradients / spacing all come from the CSS above.
+   ============================================================ */
+html,body{background:transparent;overflow:hidden;padding:0}
+body{padding:0;width:auto;height:auto} /* 宿主窗口＝卡片本体，不再需要透明留白 */
+/* 独立窗口：卡片铺满宿主左上角；设计稿舞台定位 left:30px/bottom:66px 不适用（会偏移+右侧裁切） */
+.card{left:0;top:0;bottom:auto}
+/* 宿主内不显示卡片外层投影与外发光（桌面上一圈脏阴影），只保留内描边高光 */
+.card.vf{box-shadow:var(--card-inset)!important;animation:none!important}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="em-kbd" viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2.5"/><path d="M5.5 9h1M9 9h1M12.5 9h1M16 9h1M18.5 9h.2M5.5 12h1M9 12h1M12.5 12h1M16 12h1M18.5 12h.2M7 15.2h10"/></symbol>
+  <symbol id="em-mse" viewBox="0 0 24 24"><rect x="6.5" y="2.5" width="11" height="19" rx="5.5"/><path d="M12 2.5v6.2M9.2 9.2h5.6"/></symbol>
+  <symbol id="link-24" viewBox="0 0 24 24"><path d="M2.5 8.5a13.5 13.5 0 0 1 19 0M6 12.2a8.5 8.5 0 0 1 12 0M9.4 15.8a3.6 3.6 0 0 1 5.2 0"/><circle cx="12" cy="19" r="1.1" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="link-bt" viewBox="0 0 24 24"><path d="M8 7.5 16 16.5 12 20V4l4 3.5L8 16.5"/></symbol>
+  <symbol id="link-usb" viewBox="0 0 24 24"><path d="M12 3v7M9 5.5V3h6v2.5M8 10h8v3a4 4 0 0 1-4 4 4 4 0 0 1-4-4v-3ZM12 17v3M9.5 20h5"/></symbol>
+  <symbol id="ic-bolt" viewBox="0 0 24 24"><path d="M13.5 2 4.5 13.5H10L9.5 22l9-11.5H13z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="ic-off" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M6.2 6.2l11.6 11.6"/></symbol>
+  <!-- 齿轮：一个齿形 + 45° 步进旋转复制，几何上严格对称；环 r6.1、齿 r6.6~10.2、轴孔 r2.6 -->
+  <symbol id="ic-gear" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="6.1"/>
+    <path d="M12 1.8v3.6"/>
+    <path d="M12 1.8v3.6" transform="rotate(45 12 12)"/>
+    <path d="M12 1.8v3.6" transform="rotate(90 12 12)"/>
+    <path d="M12 1.8v3.6" transform="rotate(135 12 12)"/>
+    <path d="M12 1.8v3.6" transform="rotate(180 12 12)"/>
+    <path d="M12 1.8v3.6" transform="rotate(225 12 12)"/>
+    <path d="M12 1.8v3.6" transform="rotate(270 12 12)"/>
+    <path d="M12 1.8v3.6" transform="rotate(315 12 12)"/>
+    <circle cx="12" cy="12" r="2.6"/>
+  </symbol>
+  <!-- 通知区域图标 Ⅳ 双环闪电：大尺寸（≥24px）实心闪电 -->
+  <symbol id="icn-lg" viewBox="0 0 16 16">
+    <rect x=".5" y=".5" width="15" height="15" rx="4" fill="url(#icnPlate)" stroke="#02ACF4" stroke-opacity=".5"/>
+    <path d="M7.55 13.13A5.15 5.15 0 1 1 7.55 2.87" fill="none" stroke="#02ACF4" stroke-width="1.35"/>
+    <path d="M8.45 2.87A5.15 5.15 0 1 1 8.45 13.13" fill="none" stroke="#E7B25A" stroke-width="1.35"/>
+    <path d="M9.7 5 6.3 8.6H8.15L6.35 11 9.75 7.25H7.9Z" fill="#F4FAFE"/>
+  </symbol>
+
+  <!-- 通知区域图标 Ⅳ 双环闪电：16/20px 小尺寸版，折线闪电 + 加粗环 -->
+  <symbol id="icn-sm" viewBox="0 0 16 16">
+    <rect x=".5" y=".5" width="15" height="15" rx="4" fill="url(#icnPlate)" stroke="#02ACF4" stroke-opacity=".55"/>
+    <path d="M7.6 13.1A5.1 5.1 0 1 1 7.6 2.9" fill="none" stroke="#02ACF4" stroke-width="1.5"/>
+    <path d="M8.4 2.9A5.1 5.1 0 1 1 8.4 13.1" fill="none" stroke="#E7B25A" stroke-width="1.5"/>
+    <path d="M9.35 4.95 7.5 8.15H8.95L6.7 11" fill="none" stroke="#F4FAFE" stroke-width="1.95"
+          stroke-linejoin="miter" stroke-linecap="butt"/>
+  </symbol>
+
+  <symbol id="sys-wifi" viewBox="0 0 16 16">
+    <g fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round">
+      <path d="M2 6.2a9 9 0 0 1 12 0"/><path d="M4.2 8.6a6 6 0 0 1 7.6 0"/><path d="M6.4 11a3 3 0 0 1 3.2 0"/>
+    </g><circle cx="8" cy="13.1" r="1" fill="currentColor"/>
+  </symbol>
+  <symbol id="sys-vol" viewBox="0 0 16 16">
+    <path d="M3 6h2.2L8.4 3.4v9.2L5.2 10H3z" fill="currentColor"/>
+    <g fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round">
+      <path d="M10.6 5.8a3.2 3.2 0 0 1 0 4.4"/><path d="M12.4 4a5.6 5.6 0 0 1 0 8"/>
+    </g>
+  </symbol>
+  <symbol id="sys-batt" viewBox="0 0 16 16">
+    <rect x="1.4" y="5" width="11.2" height="6" rx="1.6" fill="none" stroke="currentColor" stroke-width="1.2"/>
+    <rect x="13.4" y="6.6" width="1.6" height="2.8" rx=".8" fill="currentColor"/>
+    <rect x="2.8" y="6.4" width="6.4" height="3.2" rx=".8" fill="currentColor"/>
+  </symbol>
+
+  <defs>
+    <linearGradient id="icnPlate" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0F2634"/><stop offset="1" stop-color="#050D14"/>
+    </linearGradient>
+  </defs>
+</svg>
+<div class="desk on" id="desk9">
+<div class="card vf">
+        <div class="anchor"></div>
+        <div class="vf-top">
+          <div class="vf-brand"><b>POWER MONITORING</b><span>电量监测 // DUAL OPTICS</span></div>
+          <div class="vf-right"><span class="rec"><b></b><span data-rec-label>REC · STANDBY</span></span><button class="vf-gear" type="button" data-settings-open title="设置 / SETTINGS" aria-label="打开设置"><svg class="glyph"><use href="#ic-gear"/></svg></button></div>
+        </div>
+
+        <div class="vf-row">
+          <div class="vf-frame" id="vfK">
+            <i class="scanline"></i>
+            <i class="scanline b"></i>
+            <svg class="vf-rule" viewBox="0 0 274 186" preserveAspectRatio="none"><path d="M91 0V186M183 0V186M0 62H274M0 124H274"/></svg>
+            <i class="vf-cn tl"></i><i class="vf-cn tr"></i><i class="vf-cn bl"></i><i class="vf-cn br"></i>
+            <div class="vf-af"></div>
+            <svg class="vf-ic glyph"><use href="#em-kbd"/></svg>
+            <svg class="vf-chgbolt"><use href="#ic-bolt"/></svg>
+            <div class="vf-tag">KB-01 <span class="chip" data-link="kb"><svg class="glyph lnico"><use data-link-ico="kb" href="#link-24"/></svg><span data-link-text="kb">2.4G</span></span></div>
+            <div class="vf-state only-charge"><svg class="glyph" style="fill:currentColor;stroke:none"><use href="#ic-bolt"/></svg> CHG</div>
+            <div class="vf-sub"><span data-sub="kb">EST. REMAIN</span><b data-remain="kb">≈ 9h 20m</b></div>
+            <div class="vf-num"><span data-num="kb">87</span><small>%</small></div>
+            <div class="vf-seg"><svg data-seg="kb" viewBox="0 0 246 7" preserveAspectRatio="none"></svg></div>
+            <div class="vf-nolink">NO LINK</div>
+          </div>
+          <div class="vf-frame m" id="vfM">
+            <i class="scanline"></i>
+            <i class="scanline b"></i>
+            <svg class="vf-rule" viewBox="0 0 274 186" preserveAspectRatio="none"><path d="M91 0V186M183 0V186M0 62H274M0 124H274"/></svg>
+            <i class="vf-cn tl"></i><i class="vf-cn tr"></i><i class="vf-cn bl"></i><i class="vf-cn br"></i>
+            <div class="vf-af"></div>
+            <svg class="vf-ic glyph"><use href="#em-mse"/></svg>
+            <svg class="vf-chgbolt"><use href="#ic-bolt"/></svg>
+            <div class="vf-tag">MS-02 <span class="chip" data-link="ms"><svg class="glyph lnico"><use data-link-ico="ms" href="#link-bt"/></svg><span data-link-text="ms">BLUETOOTH</span></span></div>
+            <div class="vf-state only-charge"><svg class="glyph" style="fill:currentColor;stroke:none"><use href="#ic-bolt"/></svg> CHG</div>
+            <div class="vf-sub"><span data-sub="ms">EST. REMAIN</span><b data-remain="ms">≈ 5h 10m</b></div>
+            <div class="vf-num"><span data-num="ms">62</span><small>%</small></div>
+            <div class="vf-seg"><svg data-seg="ms" viewBox="0 0 246 7" preserveAspectRatio="none"></svg></div>
+            <div class="vf-nolink">NO LINK</div>
+          </div>
+        </div>
+
+        <div class="vf-exp-sec">
+          <div class="vf-sec-hd">
+            <b>DISTRIBUTION / 电量分布</b>
+            <div class="bins-btn" style="margin-left:auto;pointer-events:none">
+              <span>TIME</span><i class="bt-sep"></i><span>12H</span>
+            </div>
+          </div>
+          <svg id="hist" viewBox="0 0 556 104" preserveAspectRatio="none"></svg>
+          <div class="vf-axis"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+        </div>
+
+        <div class="vf-meter">
+          <svg id="evScale" viewBox="0 0 556 34" preserveAspectRatio="none"></svg>
+          <i class="vf-cur" id="curK" style="left:85%"></i>
+          <i class="vf-cur m" id="curM" style="left:61%"></i>
+        </div>
+
+        <div class="vf-ft">
+          <div class="h">连接设备 / DEVICES</div>
+          <div class="h">充电起始 / START</div>
+          <div class="h">结束充电 / END</div>
+          <div class="h">充至电量 / POWER</div>
+          <div class="h">使用时长 / USE</div>
+
+          <div class="c dev kbrow"><svg class="glyph"><use href="#em-kbd"/></svg><span data-devname="kb">键盘</span></div>
+          <div class="c kbrow" data-kb-start>—</div>
+          <div class="c dim kbrow" data-kb-end>—</div>
+          <div class="c kbrow" data-kb-pow>—</div>
+          <div class="c kbrow" data-kb-use>—</div>
+
+          <div class="c dev m msrow"><svg class="glyph"><use href="#em-mse"/></svg><span data-devname="ms">鼠标</span></div>
+          <div class="c msrow" data-ms-start>—</div>
+          <div class="c msrow dim" data-ms-end>—</div>
+          <div class="c msrow" data-ms-pow>—</div>
+          <div class="c msrow" data-ms-use>—</div>
+        </div>
+        <div class="vf-sys"><span><b data-online>02</b> DEVICES ONLINE · LAST SYNC <b data-sync>23:12:08</b></span><span><span data-sys-status>SYS / NOMINAL · FW 2.4.1</span><i class="sys-cur"></i></span></div>
+        <div class="vf-settings" id="vfSettings" aria-hidden="true" role="dialog" aria-label="设置">
+          <i class="vf-cn tl"></i><i class="vf-cn tr"></i><i class="vf-cn bl"></i><i class="vf-cn br"></i>
+          <div class="vf-set-hd">
+            <button class="vf-back" type="button" data-settings-close><svg class="glyph" viewBox="0 0 24 24"><path d="M14 5l-7 7 7 7"/></svg>BACK</button>
+            <div class="vf-set-title"><b>SETTINGS</b><span>系统设置 // PREFERENCES</span></div>
+            <span class="vf-set-id">CFG / 01</span>
+          </div>
+          <div class="vf-set-body">
+            <div class="vf-set-cap">GENERAL / 常规</div>
+            <div class="vf-set-row">
+              <div class="vf-set-label"><b>开机自启</b><span>AUTO START · 系统登录时自动运行</span></div>
+              <button class="sw" type="button" role="switch" aria-checked="true" data-toggle="autostart" aria-label="开机自启"><i></i></button>
+            </div>
+            <div class="vf-set-row">
+              <div class="vf-set-label"><b>启用托盘图标</b><span>TRAY ICON · 任务栏常驻显示</span></div>
+              <button class="sw" type="button" role="switch" aria-checked="true" data-toggle="tray" aria-label="启用托盘图标"><i></i></button>
+            </div>
+
+            <div class="vf-set-cap m">DEVICES / 设备命名</div>
+            <div class="vf-set-row">
+              <div class="vf-set-label"><b>键盘名称</b><span>DEVICE NAME · 显示在连接设备一列</span></div>
+              <input class="vf-input" type="text" data-name="kb" value="键盘" maxlength="14" placeholder="键盘" aria-label="键盘名称">
+            </div>
+            <div class="vf-set-row">
+              <div class="vf-set-label"><b>鼠标名称</b><span>DEVICE NAME · 显示在连接设备一列</span></div>
+              <input class="vf-input" type="text" data-name="ms" value="鼠标" maxlength="14" placeholder="鼠标" aria-label="鼠标名称">
+            </div>
+            <div class="vf-set-note">名称即时同步到卡片底部「连接设备 / DEVICES」；留空自动回退为「键盘 / 鼠标」。</div>
+
+            <div class="vf-set-cap">DISPLAY / 界面主题</div>
+            <div class="vf-set-row">
+              <div class="vf-set-label"><b>主题</b><span>THEME · 任务栏入口与卡片同步切换</span></div>
+              <div class="vf-tseg" role="group" aria-label="界面主题">
+                <button type="button" data-theme="dark">深色</button>
+                <button type="button" data-theme="light">浅色</button>
+              </div>
+            </div>
+
+            <div class="vf-set-cap m">ALERT / 低电量提醒</div>
+            <div class="vf-set-row">
+              <div class="vf-set-label"><b>低电量通知</b><span>NOTIFY · 系统原生通知，达阈值提醒一次</span></div>
+              <button class="sw" type="button" role="switch" aria-checked="true" data-toggle="notify" aria-label="低电量通知"><i></i></button>
+            </div>
+            <div class="vf-set-row">
+              <div class="vf-set-label"><b>低电量阈值</b><span>THRESHOLD · 电量不高于该值时数字变红</span></div>
+              <div class="vf-tstep" role="group" aria-label="低电量阈值">
+                <button type="button" data-thr="-5" aria-label="阈值降低">−</button>
+                <b data-thr-val>20%</b>
+                <button type="button" data-thr="+5" aria-label="阈值提高">+</button>
+              </div>
+            </div>
+            <div class="vf-set-note">阈值同时决定任务栏数字变红与卡片内的低电量配色；通知以系统气泡形式弹出，需要托盘图标在场。</div>
+
+            <button class="vf-set-reset" type="button" data-settings-reset>RESET / 恢复默认</button>
+          </div>
+          <div class="vf-set-ft"><span><b>02</b> DEVICES · <span data-set-devices>键盘 / 鼠标</span></span><span data-set-status>ALL SETTINGS SAVED</span></div>
+        </div>
+</div>
+<script>
+
+(function(){
+'use strict';
+var NS='http://www.w3.org/2000/svg';
+function q(s,r){return (r||document).querySelector(s)}
+function qa(s,r){return Array.prototype.slice.call((r||document).querySelectorAll(s))}
+function E(t,a,p){var e=document.createElementNS(NS,t);for(var k in a)e.setAttribute(k,a[k]);if(p)p.appendChild(e);return e}
+function clr(n){if(n)while(n.firstChild)n.removeChild(n.firstChild)}
+function once(el,cls,ms){if(!el)return;el.classList.remove(cls);el.getBoundingClientRect();el.classList.add(cls);setTimeout(function(){el.classList.remove(cls)},ms)}
+var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+/* ---------- 主题色板：SVG 图表与 CSS 共用同一份变量 ---------- */
+var P={};
+function cssv(n){return getComputedStyle(document.body).getPropertyValue(n).trim()}
+function refreshPal(){
+ P={k:cssv('--k'),m:cssv('--m'),kHi:cssv('--k-hi'),mHi:cssv('--m-hi'),red:cssv('--red'),
+    gh:cssv('--gh'),gv:cssv('--gv'),gaxis:cssv('--gaxis'),gmid:cssv('--gmid'),
+    segOff:cssv('--seg-off'),ink2:cssv('--ink2'),ink3:cssv('--ink3')};
+}
+
+/* ---------- data & state ---------- */
+var LINKS=['2.4G','BLUETOOTH','USB-C'],ICONS=['link-24','link-bt','link-usb'];
+var STATUS={
+ normal:        {kb:87,ms:62, chargeK:false,chargeM:false,low:false,full:false,off:false,remainK:'≈ 9h 20m',remainM:'≈ 5h 10m',chgEnd:'预计 22:35',sys:'SYS / NOMINAL · FW 2.4.1'},
+ charging:      {kb:87,ms:62, chargeK:true, chargeM:true, low:false,full:false,off:false,remainK:'CHARGING',remainM:'CHARGING',   chgEnd:'预计 22:35',sys:'SYS / CHARGE ACTIVE · FW 2.4.1'},
+ kbcharging:    {kb:87,ms:62, chargeK:true, chargeM:false,low:false,full:false,off:false,remainK:'CHARGING',remainM:'≈ 5h 10m',  chgEnd:'预计 22:35',sys:'SYS / 01 DEVICE CHARGING · FW 2.4.1'},
+ mscharging:    {kb:87,ms:62, chargeK:false,chargeM:true, low:false,full:false,off:false,remainK:'≈ 9h 20m',remainM:'CHARGING',  chgEnd:'预计 22:35',sys:'SYS / 01 DEVICE CHARGING · FW 2.4.1'},
+ low:           {kb:18,ms:9,  chargeK:false,chargeM:false,low:true, full:false,off:false,remainK:'≈ 1h 50m',remainM:'≈ 0h 45m',   chgEnd:'—',          sys:'SYS / LOW BATTERY · FW 2.4.1'},
+ full:          {kb:100,ms:100,chargeK:false,chargeM:false,low:false,full:true, off:false,remainK:'≈ 11h 00m',remainM:'≈ 8h 30m',  chgEnd:'22:35 已完成',sys:'SYS / FULL · FW 2.4.1'},
+ disconnected:  {kb:87,ms:null,chargeK:false,chargeM:false,low:false,full:false,off:true, remainK:'≈ 9h 20m',remainM:'NO LINK',     chgEnd:'预计 22:35',sys:'SYS / 01 DEVICE OFFLINE · FW 2.4.1'},
+ kbdisconnected:{kb:null,ms:62, chargeK:false,chargeM:false,low:false,full:false,off:false,offK:true,remainK:'NO LINK',remainM:'≈ 5h 10m',chgEnd:'预计 22:35',sys:'SYS / 01 DEVICE OFFLINE · FW 2.4.1'}
+};
+var state={status:'normal',link:{kb:0,ms:1},theme:'dark',ambient:'on'};
+function S(){return STATUS[state.status]}
+/* 充电判定：按设备拆分，顶栏 REC 只由「任一设备正在充电」驱动 */
+function chg(d,s){s=s||S();return d==='kb'?!!s.chargeK:!!s.chargeM}
+function anyCharge(s){s=s||S();return !!(s.chargeK||s.chargeM)}
+function num(d){var v=S()[d];return v===null?'--':(v<10?'0'+v:String(v))}
+function pct(d){var v=S()[d];return v===null?0:v}
+function linkText(d){return LINKS[state.link[d]]}
+function anim(dur,cb){var st=performance.now();dur=reduce?1:dur;function f(now){var t=Math.min(1,(now-st)/dur),e=1-Math.pow(1-t,4);cb(e,t);if(t<1)requestAnimationFrame(f)}requestAnimationFrame(f)}
+
+/* ---------- charts ---------- */
+/* 12 组整点采样：每组一根冰蓝（键盘）+ 一根琥珀（鼠标）；按时间从旧到新，最右是最新 */
+function drawHist(){
+ var s=q('#hist');if(!s)return;clr(s);
+ var W=556,H=104,nb=12,bw=W/nb,base=H-14,i,bar=bw*.3;
+ for(i=0;i<=4;i++)E('line',{x1:0,y1:10+i*20,x2:W,y2:10+i*20,stroke:P.gh,'stroke-width':1},s);
+ for(i=0;i<=nb;i++)E('line',{x1:(i*bw).toFixed(1),y1:10,x2:(i*bw).toFixed(1),y2:base,stroke:P.gv,'stroke-width':1},s);
+ var pts=window.__hist||[];
+ var sig=JSON.stringify(pts),fresh=sig!==window.__histSig;window.__histSig=sig;
+ for(i=0;i<nb;i++){
+  var d=pts[i];if(!d)continue;
+  var x0=i*bw,hk=d.kb==null?0:d.kb/100*70,hm=d.ms==null?0:d.ms/100*70;
+  var bK=E('rect',{x:(x0+bw*.12).toFixed(1),y:(base-hk).toFixed(1),width:bar.toFixed(1),height:Math.max(.5,hk).toFixed(1),fill:P.k,'fill-opacity':.82},s);
+  bK.setAttribute('class','hb');bK.style.animationDelay=(-((nb-1-i)*0.09)).toFixed(2)+'s';
+  if(hk>2)E('rect',{x:(x0+bw*.12).toFixed(1),y:(base-hk).toFixed(1),width:bar.toFixed(1),height:1.4,fill:P.kHi,'fill-opacity':.9},s);
+  var bM=E('rect',{x:(x0+bw*.55).toFixed(1),y:(base-hm).toFixed(1),width:bar.toFixed(1),height:Math.max(.5,hm).toFixed(1),fill:P.m,'fill-opacity':.80},s);
+  bM.setAttribute('class','hb');bM.style.animationDelay=(-((nb-1-i)*0.09+1.1)).toFixed(2)+'s';
+  if(hm>2)E('rect',{x:(x0+bw*.55).toFixed(1),y:(base-hm).toFixed(1),width:bar.toFixed(1),height:1.4,fill:P.mHi,'fill-opacity':.9},s);
+  /* 数据有变化时，最新一组柱子从底部生长 */
+  if(fresh&&!reduce&&i===pts.length-1){
+   [bK,bM].forEach(function(b){if(b.animate)b.animate([{transform:'scaleY(.04)'},{transform:'none'}],{duration:640,easing:'cubic-bezier(.16,.84,.28,1)'})});
+  }
+ }
+ E('line',{x1:W/2,y1:10,x2:W/2,y2:base,stroke:P.gmid,'stroke-width':1,'stroke-dasharray':'3 4'},s);
+ E('line',{x1:0,y1:base,x2:W,y2:base,stroke:P.gaxis,'stroke-width':1},s);
+}
+function drawEv(){
+ var s=q('#evScale');if(!s)return;clr(s);
+ var W=556,x0=14,x1=W-14,v;
+ for(v=-3;v<=3;v+=.25){
+  var x=x0+(x1-x0)*(v+3)/6,major=Math.abs(v%1)<.001,half=Math.abs(v%.5)<.001;
+  E('line',{x1:x.toFixed(1),y1:major?9:(half?14:18),x2:x.toFixed(1),y2:27,stroke:major?P.ink2:P.gmid,'stroke-width':major?1.2:.8,'stroke-opacity':major?'.8':'.45'},s);
+  if(major){var t=E('text',{x:x.toFixed(1),y:7,fill:Math.abs(v)<.001?P.ink2:P.ink3,'font-size':'9','text-anchor':'middle','font-family':'monospace'},s);t.textContent=(v>0?'+':'')+v}
+ }
+ E('line',{x1:x0,y1:27,x2:x1,y2:27,stroke:P.gaxis,'stroke-width':1},s);
+}
+function drawSeg(id,p,col){
+ var s=q(id);if(!s)return;clr(s);
+ var W=246,n=20,gap=2,bw=(W-gap*(n-1))/n;
+ for(var i=0;i<n;i++){
+  var on=i<Math.round(p/5);
+  var sg=E('rect',{x:(i*(bw+gap)).toFixed(1),y:1,width:bw.toFixed(1),height:5,rx:.6,fill:on?col:P.segOff},s);
+  if(on){sg.setAttribute('class','sg');sg.style.animationDelay=(-((n-1-i)*0.14)).toFixed(2)+'s';}
+  if(on)E('rect',{x:(i*(bw+gap)).toFixed(1),y:1,width:bw.toFixed(1),height:1,rx:.4,fill:'#fff','fill-opacity':.30},s);
+ }
+}
+
+/* 数字滚动：旧读数 → 新读数，两位数补零，落定后闪一次冷光 */
+function countTo(n,from,to){
+ var pad=to<10?'0':'',dur=520;
+ n._tgN=to;
+ anim(dur,function(e,t){
+  var v=Math.round(from+(to-from)*e);
+  n.textContent=(v<10?pad:'')+v;
+  if(t>=1){n.classList.remove('cnt');void n.offsetWidth;n.classList.add('cnt')}
+ });
+ /* 窗口不可见时 rAF 会被节流，兜底保证最终读数一定落定 */
+ setTimeout(function(){
+  if(n._tgN!==to)return;
+  n.textContent=(to<10?'0':'')+to;
+  n.classList.remove('cnt');void n.offsetWidth;n.classList.add('cnt');
+ },dur+120);
+}
+
+/* ---------- render ---------- */
+function renderMeta(animate){
+ var s=S();
+ qa('[data-num]').forEach(function(n){
+  var v=num(n.getAttribute('data-num'));
+  if(n.textContent===v&&!n.classList.contains('cnt'))return;
+  /* 目标没变就别重启动画，避免快照刷得比动画快时数字卡在半路 */
+  if(n._tg===v&&n._run)return;
+  n._tg=v;
+  var from=parseInt(n.textContent,10);
+  if(!animate||reduce||isNaN(from)||Math.abs(from-v)>40){n.textContent=v;if(animate&&!reduce)once(n,'bump',480);return}
+  n._run=1;
+  countTo(n,from,v);
+ });
+ qa('[data-link-text]').forEach(function(n){n.textContent=linkText(n.getAttribute('data-link-text'))});
+ qa('[data-link-ico]').forEach(function(n){
+  var d=n.getAttribute('data-link-ico'),off=(d==='kb'?!!s.offK:!!s.off);
+  n.setAttribute('href',off?'#ic-off':'#'+ICONS[state.link[d]]);
+ });
+ qa('[data-rec-label]').forEach(function(n){n.textContent=anyCharge(s)?'REC · CHARGING':'REC · STANDBY'});
+ qa('[data-sub]').forEach(function(n){n.textContent=chg(n.getAttribute('data-sub'),s)?'CHARGE STATUS':'EST. REMAIN'});
+ qa('[data-remain="kb"]').forEach(function(n){n.textContent=s.remainK});
+ qa('[data-remain="ms"]').forEach(function(n){n.textContent=s.remainM});
+ qa('[data-chg-end]').forEach(function(n){n.textContent=s.chgEnd});
+ qa('[data-sys-status]').forEach(function(n){n.textContent=s.sys});
+ document.body.classList.toggle('chg-any',anyCharge(s));
+ document.body.classList.toggle('chg-kb',chg('kb',s));
+ document.body.classList.toggle('chg-ms',chg('ms',s));
+ document.body.classList.toggle('lowbat',s.low);
+ document.body.classList.toggle('nolink',s.off);
+ document.body.classList.toggle('nolk',!!s.offK);
+ document.body.classList.toggle('full',s.full);
+ document.body.classList.toggle('theme-light',state.theme==='light');
+ qa('[data-theme]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-theme')===state.theme)});
+
+ var kCol=s.low?P.red:P.k,mCol=s.low?P.red:P.m;
+ drawSeg('[data-seg="kb"]',pct('kb'),kCol);
+ drawSeg('[data-seg="ms"]',pct('ms'),mCol);
+ var ck=q('#curK'),cm=q('#curM');
+ if(ck)setCur(ck,S().kb);
+ if(cm)setCur(cm,S().ms);
+}
+/* 有读数就按电量比例定位，无读数（断连/未上报）停在中间灰位 */
+function setCur(el,v){
+ if(v===null||v===undefined){el.style.left='50%';el.classList.add('idle')}
+ else{el.style.left=(2.5+v*.95)+'%';el.classList.remove('idle')}
+}
+function renderCharts(){drawHist()}
+function renderAll(animate){renderMeta(animate);renderCharts()}
+
+/* ---------- settings ---------- */
+var CFG_KEY='aperture_viewfinder_cfg_v1';
+var cfg={autostart:true,tray:true,nameK:'键盘',nameM:'鼠标',notify:true,threshold:20,theme:'dark'};
+try{
+ var saved=JSON.parse(localStorage.getItem(CFG_KEY)||'null');
+ if(saved&&typeof saved==='object'){
+  if(typeof saved.autostart==='boolean')cfg.autostart=saved.autostart;
+  if(typeof saved.tray==='boolean')cfg.tray=saved.tray;
+  if(typeof saved.nameK==='string')cfg.nameK=saved.nameK.slice(0,14);
+  if(typeof saved.nameM==='string')cfg.nameM=saved.nameM.slice(0,14);
+  if(typeof saved.notify==='boolean')cfg.notify=saved.notify;
+  if(typeof saved.threshold==='number')cfg.threshold=Math.max(5,Math.min(60,saved.threshold));
+  if(saved.theme==='light'||saved.theme==='dark')cfg.theme=saved.theme;
+ }
+}catch(err){}
+function saveCfg(){try{localStorage.setItem(CFG_KEY,JSON.stringify(cfg))}catch(err){}}
+/* 设置页改动回传给宿主：主题 / 低电量通知 / 阈值存进 rapoo-battery.ini */
+function postCfg(o){
+ try{ if(window.chrome&&window.chrome.webview) window.chrome.webview.postMessage(JSON.stringify({cfg:o})); }catch(err){}
+}
+function nameFontSize(t){
+ var u=0;for(var i=0;i<t.length;i++)u+=t.charCodeAt(i)>255?2:1;
+ return u>24?'8.5px':(u>18?'9px':'10px');
+}
+function devNames(){
+ var k=cfg.nameK||'键盘',m=cfg.nameM||'鼠标';
+ qa('[data-devname="kb"]').forEach(function(n){n.textContent=k;n.title=k;n.style.fontSize=nameFontSize(k)});
+ qa('[data-devname="ms"]').forEach(function(n){n.textContent=m;n.title=m;n.style.fontSize=nameFontSize(m)});
+ qa('[data-set-devices]').forEach(function(n){n.textContent=k+' / '+m});
+}
+function applyCfg(){
+ qa('[data-toggle]').forEach(function(b){b.setAttribute('aria-checked',cfg[b.getAttribute('data-toggle')]?'true':'false')});
+ qa('[data-thr-val]').forEach(function(n){n.textContent=cfg.threshold+'%'});
+ qa('[data-theme]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-theme')===state.theme)});
+ qa('[data-name="kb"]').forEach(function(i){if(i.value!==cfg.nameK)i.value=cfg.nameK});
+ qa('[data-name="ms"]').forEach(function(i){if(i.value!==cfg.nameM)i.value=cfg.nameM});
+ devNames();
+ document.body.classList.toggle('tray-off',!cfg.tray);
+}
+function cfgSaved(){
+ var s=q('[data-set-status]');
+ if(s){s.textContent='CFG SAVED · LOCAL';once(s,'bump',480)}
+}
+function openSettings(){
+ var p=q('#vfSettings');if(!p)return;
+ p.classList.add('open');p.setAttribute('aria-hidden','false');document.body.classList.add('settings-open');
+}
+function closeSettings(){
+ var p=q('#vfSettings');if(!p)return;
+ p.classList.remove('open');p.setAttribute('aria-hidden','true');document.body.classList.remove('settings-open');
+}
+
+/* ---------- interactions ---------- */
+function setStatus(v){
+ if(!STATUS[v])return;
+ state.status=v;renderAll(true);
+ qa('.vf-frame').forEach(function(f){once(f,'focusing',620)});
+}
+function setAmbient(v){
+ state.ambient=v;
+ document.body.classList.toggle('ambient-off',v==='off');
+}
+function setTheme(t,quiet){
+ if(t!=='dark'&&t!=='light')return;
+ if(quiet&&t===state.theme)return;
+ state.theme=t;cfg.theme=t;saveCfg();
+ document.body.classList.toggle('theme-light',t==='light');
+ refreshPal();
+ drawEv();
+ qa('[data-theme]').forEach(function(b){b.classList.toggle('on',b.getAttribute('data-theme')===t)});
+ /* quiet：由快照同步过来的主题，调用方随后会统一重绘，不再回传宿主 */
+ if(quiet)return;
+ renderAll(false);
+ postCfg({theme:t});
+}
+
+document.addEventListener('click',function(e){
+ var gear=e.target&&e.target.closest?e.target.closest('[data-settings-open]'):null;
+ if(gear){openSettings();return}
+ var back=e.target&&e.target.closest?e.target.closest('[data-settings-close]'):null;
+ if(back){closeSettings();return}
+ var rst=e.target&&e.target.closest?e.target.closest('[data-settings-reset]'):null;
+ if(rst){
+  cfg.autostart=true;cfg.tray=true;cfg.nameK='键盘';cfg.nameM='鼠标';
+  cfg.notify=true;cfg.threshold=20;cfg.theme='dark';
+  saveCfg();applyCfg();setTheme('dark');cfgSaved();once(rst,'pulse',520);
+  postCfg({notify:true,threshold:20,theme:'dark',autostart:true,tray:true});
+  return
+ }
+ var sw=e.target&&e.target.closest?e.target.closest('[data-toggle]'):null;
+ if(sw){
+  var key=sw.getAttribute('data-toggle');cfg[key]=!cfg[key];saveCfg();applyCfg();cfgSaved();once(sw,'pulse',520);
+  /* 每一项改动即时落盘，不需要再点保存 */
+  if(key==='notify')postCfg({notify:cfg.notify});
+  else if(key==='autostart')postCfg({autostart:cfg.autostart});
+  else if(key==='tray')postCfg({tray:cfg.tray});
+  return
+ }
+ var thr=e.target&&e.target.closest?e.target.closest('[data-thr]'):null;
+ if(thr){
+  var d=parseInt(thr.getAttribute('data-thr'),10)||0;
+  cfg.threshold=Math.max(5,Math.min(60,cfg.threshold+d));
+  saveCfg();applyCfg();cfgSaved();once(thr,'pulse',520);
+  postCfg({threshold:cfg.threshold});
+  return
+ }
+ var th=e.target.closest('[data-theme]');if(th){setTheme(th.getAttribute('data-theme'));return}
+});
+document.addEventListener('keydown',function(e){
+ if(e.target&&/^(INPUT|TEXTAREA)$/.test(e.target.tagName)){
+  if(e.key==='Escape'){e.target.blur();closeSettings()}
+  if(e.key==='Enter'){e.target.blur()}
+  return
+ }
+ if(e.key==='Escape'){closeSettings();return}
+ if(e.key==='ArrowLeft'||e.key==='ArrowRight'){setTheme(state.theme==='dark'?'light':'dark')}
+});
+document.addEventListener('input',function(e){
+ var n=e.target&&e.target.closest?e.target.closest('[data-name]'):null;
+ if(!n)return;
+ var d=n.getAttribute('data-name'),v=n.value.slice(0,14);
+ if(v!==n.value)n.value=v;
+ if(d==='kb')cfg.nameK=v;else cfg.nameM=v;
+ saveCfg();devNames();postCfg({nameK:cfg.nameK,nameM:cfg.nameM});cfgSaved();
+});
+
+/* ---------- boot ---------- */
+var p=new URLSearchParams(location.search);
+/* 主题在首帧之前定下来：地址栏 > 本机缓存（宿主快照随后会再校准一次） */
+if(p.get('theme')==='light'||p.get('bar')==='light'||cfg.theme==='light')state.theme='light';
+document.body.classList.toggle('theme-light',state.theme==='light');
+refreshPal();drawEv();renderAll(false);applyCfg();
+if(p.get('focus')==='1')document.body.classList.add('focus');
+if(p.get('settings')==='1')openSettings();
+if(p.get('ambient')==='0')setAmbient('off');
+var st=p.get('st');if(st&&STATUS[st])setStatus(st);
+
+/* ---------- 宿主快照：入口与大卡片共用同一份实时读数 ----------
+   s = {kb:{v,charge,present,link}, ms:{v,charge,present,link}, hist:[...]} */
+function remText(v,full){
+ if(v===null||v===undefined)return '—';
+ var m=Math.round(v*full/100),h=Math.floor(m/60),mm=m%60;
+ return '≈ '+h+'h '+(mm<10?'0'+mm:mm)+'m';
+}
+/* 直接按分钟数格式化（后端真实放电速率估算结果用） */
+function remMinText(m){
+ var h=Math.floor(m/60),mm=m%60;
+ return '≈ '+h+'h '+(mm<10?'0'+mm:mm)+'m';
+}
+/* 底部 LAST SYNC 显示当前电脑时间：每秒自走，设备休眠没有快照也照常走 */
+function clockText(){
+ var d=new Date(),p=function(n){return (n<10?'0':'')+n};
+ return p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+}
+function paintClock(){qa('[data-sync]').forEach(function(e){e.textContent=clockText()})}
+paintClock();
+setInterval(paintClock,1000);
+window.__applySnapshot=function(s){
+ if(!s||!s.kb||!s.ms)return;
+ var kb=s.kb,ms=s.ms,live={};
+ /* 宿主配置是唯一真源：主题 / 低电量提醒 / 阈值 / 自启 / 托盘都在 rapoo-battery.ini 里 */
+ if(s.cfg){
+  var hc=s.cfg;
+  if(typeof hc.threshold==='number')cfg.threshold=Math.max(5,Math.min(60,hc.threshold));
+  if(typeof hc.notify==='boolean')cfg.notify=hc.notify;
+  if(typeof hc.autostart==='boolean')cfg.autostart=hc.autostart;
+  if(typeof hc.tray==='boolean')cfg.tray=hc.tray;
+  if(hc.theme==='light'||hc.theme==='dark')setTheme(hc.theme,true);
+  /* 设备名唯一真源在宿主 ini：每次快照都对齐一次，覆盖本地缓存 */
+  if(typeof hc.nameK==='string'&&hc.nameK)cfg.nameK=hc.nameK.slice(0,14);
+  if(typeof hc.nameM==='string'&&hc.nameM)cfg.nameM=hc.nameM.slice(0,14);
+  applyCfg();
+ }
+ live.kb=kb.v; live.ms=ms.v;
+ live.chargeK=!!kb.charge; live.chargeM=!!ms.charge;
+ live.offK=!kb.present; live.off=!ms.present;
+ live.low=(kb.v!==null&&kb.v<=cfg.threshold)||(ms.v!==null&&ms.v<=cfg.threshold);
+ /* 分路低电量标记：只让偏低那一路做红色呼吸 */
+ document.body.classList.toggle('lowk',kb.v!==null&&kb.v<=cfg.threshold);
+ document.body.classList.toggle('lowm',ms.v!==null&&ms.v<=cfg.threshold);
+ live.full=(kb.v===100&&ms.v===100);
+ /* 续航优先用后端按整点历史算出的真实放电速率（remMin，分钟）；样本不足时回退标称满电续航折算 */
+ live.remainK=live.offK?'NO LINK':(live.chargeK?'CHARGING':(kb.remMin!=null?remMinText(kb.remMin):remText(kb.v,645)));
+ live.remainM=live.off?'NO LINK':(live.chargeM?'CHARGING':(ms.remMin!=null?remMinText(ms.remMin):remText(ms.v,500)));
+ live.chgEnd='—';
+ var off=(live.offK?1:0)+(live.off?1:0);
+ live.sys='SYS / '+(live.chargeK||live.chargeM?'CHARGE ACTIVE':(off?('0'+off+' DEVICE OFFLINE'):'NOMINAL'));
+ STATUS.live=live; state.status='live';
+ state.link={kb:kb.link|0,ms:ms.link|0};
+ /* 整点采样：宿主给的是从旧到新的 12 组，最右是最新 */
+ if(s.hist)window.__hist=s.hist;
+ var n=(kb.present?1:0)+(ms.present?1:0);
+ qa('[data-online]').forEach(function(e){e.textContent=n<10?'0'+n:String(n)});
+ paintClock();
+ /* 充放电时间线：起始 / 结束 / 充至电量 / 使用时长（充电中后三项显示 —） */
+ [['kb',kb],['ms',ms]].forEach(function(p){
+  var k=p[0],d=p[1];
+  var st=q('[data-'+k+'-start]'),en=q('[data-'+k+'-end]'),pw=q('[data-'+k+'-pow]'),us=q('[data-'+k+'-use]');
+  if(st)st.textContent=d.chgStart||'—';
+  if(en)en.textContent=d.chgEnd||'—';
+  if(pw)pw.textContent=(d.chgPow===null||d.chgPow===undefined)?'—':d.chgPow+'%';
+  if(us)us.textContent=durText(d.useMin);
+ });
+ renderAll(true);
+};
+/* 使用时长：分钟 → `6天 06:30` */
+function durText(m){
+ if(m===null||m===undefined)return '—';
+ m=Math.max(0,m|0);
+ var d=Math.floor(m/1440),r=m%1440;
+ return d+'天 '+(Math.floor(r/60)<10?'0':'')+Math.floor(r/60)+':'+(r%60<10?'0':'')+(r%60);
+}
+if(window.__pendingSnap){try{window.__applySnapshot(window.__pendingSnap)}catch(err){}}
+/* 宿主「设置」入口需要在页面外部调用 */
+window.openSettings=openSettings;
+})();
+
+</script>
+
+<script>
+/* Runtime bridge: report the card pixel size so the host window can be sized exactly
+   (borderless, no extra clickable area outside the card). */
+(function(){
+  var card=document.querySelector('.card.vf');
+  function report(){
+    if(!card)return;
+    var r=card.getBoundingClientRect();
+    var msg={w:Math.ceil(r.width),h:Math.ceil(r.height)};
+    try{ if(window.chrome&&window.chrome.webview) window.chrome.webview.postMessage(JSON.stringify(msg)); }catch(e){}
+  }
+  if(document.readyState==='complete')report();
+  window.addEventListener('load',report);
+  setTimeout(report,60);setTimeout(report,260);setTimeout(report,900);
+  new MutationObserver(report).observe(document.body,{attributes:true,attributeFilter:['class']});
+  /* 鎵樼洏鑿滃崟銆岃缃€嶏細瀹夸富棰勭疆 __wantSettings 鏃剁洿鎺ヨ繘鍏ヨ缃〉 */
+  setTimeout(function(){ if(window.__wantSettings && typeof openSettings==='function'){ try{openSettings()}catch(e){} } },60);
+  if(window.__wantSettings && typeof openSettings==='function'){ try{openSettings()}catch(e){} }
+})();
+</script>
+<script>
+/* 点击卡片外的透明留白（含盖住任务栏的那一条）＝点击外部收起，与 Windows 弹窗一致。
+   留白是页面的一部分，点击不会落到任务栏，因此必须回传给宿主执行关闭。 */
+(function(){
+  document.addEventListener('mousedown', function(e){
+    if (e.button !== 0) return;
+    if (e.target && e.target.closest && e.target.closest('.card')) return;
+    try { if(window.chrome && window.chrome.webview) window.chrome.webview.postMessage(JSON.stringify({close:1})); }catch(err){}
+  }, true);
+})();
+</script>
+</body>
+</html>
