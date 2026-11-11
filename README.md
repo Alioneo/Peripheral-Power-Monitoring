@@ -13,7 +13,23 @@
 
 程序通过逆向这两款设备 2.4G 接收机的私有 HID 报文获取电量，换任何其他型号（包括雷柏自家其他型号）都无法工作。
 
-**想给自己的设备适配？** 欢迎 Fork 本仓库，然后用 AI 助手（如 Claude、GPT 等）帮你完成适配——把 `src/protocol.rs` 交给它，说明你的设备型号，配合 USB 抓包工具（如 Wireshark + USBPcap）分析报文格式，通常需要修改的只是 VID/PID 和设备帧的解析规则，界面与系统层代码完全不用动。
+**想给自己的设备适配？** 欢迎 Fork 本仓库。先用配套的 [外设抓包工具](https://github.com/Alioneo/Peripheral-Capture-Tool) 抓一份你设备的原始报文，再把 `src/protocol.rs` 和抓包结果一起交给 AI 助手（如 Claude、GPT 等），说明设备型号，通常需要修改的只是 VID/PID 和设备帧的解析规则，界面与系统层代码完全不用动。
+
+## 配套抓包工具
+
+本项目只适配了两款雷柏设备，其他型号需要先弄清楚自己的电量协议。为此单独做了一个面向所有键鼠的抓包工具：
+
+**👉 [Peripheral-Capture-Tool · 外设抓包工具](https://github.com/Alioneo/Peripheral-Capture-Tool)**
+
+- 图形界面向导，7 步走完：选择设备 → 2.4G → 有线 → 蓝牙 → 充电状态 → 电量变化 → 生成报告
+- 每步都有操作提示、开始/结束按钮和倒计时，不需要抓包经验
+- 自动发现所有 HID 接口，支持任意品牌键鼠，不限于雷柏
+- 输出 `frames.jsonl`（逐帧原始数据）、`设备与字段分析.md`（字节分布与候选字段）、`给AI的说明.md`
+- 绿色单 exe，不写注册表、不联网，解压即用
+
+抓完之后把整个结果文件夹发给 AI，让它给出电量字段、充电状态字段和解析代码，再照着改 `src/protocol.rs` 即可完成适配。
+
+下载：[Releases](https://github.com/Alioneo/Peripheral-Capture-Tool/releases/latest)
 
 ## 功能
 
